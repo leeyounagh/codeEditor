@@ -1,20 +1,36 @@
-import type { Tab } from '../model/types';
+import type { Tab } from "../model/types";
+import styled from "styled-components";
 
 type Props = {
   tab: Tab;
   onClose: () => void;
+  onClick: () => void;
 };
-
-export const TabItem = ({ tab, onClose }: Props) => {
+const TabContainer = styled.div<{ $active: boolean }>`
+  padding: 8px 12px;
+  background: ${({ $active }) => ($active ? "#1e1e1e" : "#1a1a1a")};
+  // border: ${({ $active }) => ($active ? "1px solid #ccc" : "none")};
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  height: 100%;
+  cursor: pointer;
+`;
+export const TabItem = ({ tab, onClose, onClick }: Props) => {
   return (
-    <div style={{
-      padding: '8px 12px',
-      background: tab.isActive ? '#fff' : '#eee',
-      border: tab.isActive ? '1px solid #ccc' : 'none',
-      borderBottom: 'none'
-    }}>
+    <TabContainer $active={tab.isActive} onClick={onClick}>
       {tab.name}
-      <button onClick={onClose} style={{ marginLeft: 8 }}>x</button>
-    </div>
+      <button
+        onClick={(e) => {
+          e.stopPropagation(); 
+          onClose();
+        }}
+        style={{ marginLeft: 8, color: "lightgray" }}
+      >
+        x
+      </button>
+    </TabContainer>
   );
 };

@@ -12,8 +12,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.17.0",
-    "@chakra-ui/theme-tools": "^2.2.6",
+    "framer-motion": "^12.10.5",
     "monaco-editor": "^0.52.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

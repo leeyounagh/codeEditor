@@ -1,6 +1,14 @@
-import * as monaco from 'monaco-editor';
-import { useEffect, useRef } from 'react';
-import { useMonacoStore } from '../model/monacoStore';
+import * as monaco from "monaco-editor";
+import { useEffect, useRef } from "react";
+import { useMonacoStore } from "../model/monacoStore";
+import styled from "styled-components";
+
+const MonacoWrapper = styled.div`
+  width: 100%;
+  height: calc(100vh - 6
+  4px);
+  padding: 2rem 0;
+`;
 
 export const MonacoEditor = () => {
   const monacoRef = useRef<HTMLDivElement>(null);
@@ -11,7 +19,7 @@ export const MonacoEditor = () => {
   useEffect(() => {
     if (monacoRef.current && !editorRef.current) {
       editorRef.current = monaco.editor.create(monacoRef.current, {
-        theme: 'vs-dark',
+        theme: "vs-dark",
         automaticLayout: true,
       });
     }
@@ -21,5 +29,5 @@ export const MonacoEditor = () => {
     }
   }, [activePath, models]);
 
-  return <div ref={monacoRef} style={{ width: '100%', height: '100%' }} />;
+  return <MonacoWrapper ref={monacoRef} />;
 };
