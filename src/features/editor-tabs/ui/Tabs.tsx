@@ -14,7 +14,6 @@ const TabsWrapper = styled.div`
 export const Tabs = () => {
   const { openedTabs, openTab, closeTab } = useFileTreeStore();
 
-  console.log("Opened Tabs:", openedTabs);
 
   return (
     <TabsWrapper>
