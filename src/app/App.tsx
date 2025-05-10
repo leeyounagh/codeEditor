@@ -12,16 +12,17 @@ import {
   Sidebar,
   EditorArea,
 } from "./styles/appLyaout";
-import { mockTree } from "../mock/mockTree";
 import { useFileTreeStore } from "../entities/file-tree/model/fileTreeStore";
 
 
 function App() {
    const tree = useFileTreeStore((state) => state.tree);
+   const selectedNode = useFileTreeStore((state) => state.selectedNode);
 
    useEffect(() => {
     console.log("업데이트된 tree 상태:", tree);
-  }, [tree]);
+    console.log("업데이트된 selectedNode 상태:", selectedNode);
+  }, [tree,selectedNode]);
   return (
     <>
       <GlobalStyle />

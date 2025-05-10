@@ -1,25 +1,31 @@
-// entities/file-tree/model/fileTreeStore.ts
 import { create } from 'zustand';
 import type { FileNode } from './types';
 
 interface FileTreeState {
   tree: FileNode[];
-  activeFile: FileNode | null;
+  selectedNode: FileNode | null;
 
   setTree: (tree: FileNode[]) => void;
-  setActiveFile: (file: FileNode | null) => void;
+  setSelectedNode: (node: FileNode | null) => void;
 
   addNode: (parentPath: string, newNode: Omit<FileNode, 'children' | 'id' | 'path'>) => void;
   deleteNode: (targetPath: string) => void;
 }
 
 export const useFileTreeStore = create<FileTreeState>((set, get) => ({
+  // 전체 파일 트리
   tree: [],
-  activeFile: null,
 
+  // 현재 선택된 파일 또는 폴더
+  selectedNode: null,
+
+  // 트리 전체 설정 (zip 업로드 시 사용)
   setTree: (tree) => set({ tree }),
-  setActiveFile: (file) => set({ activeFile: file }),
 
+  // 선택된 파일 또는 폴더 설정
+  setSelectedNode: (node) => set({ selectedNode: node }),
+
+  // 새 파일/폴더 추가
   addNode: (parentPath, newNode) => {
     const updateTree = (nodes: FileNode[]): FileNode[] => {
       return nodes.map(node => {
@@ -46,6 +52,7 @@ export const useFileTreeStore = create<FileTreeState>((set, get) => ({
     set({ tree: updateTree(get().tree) });
   },
 
+  // 파일/폴더 삭제
   deleteNode: (targetPath) => {
     const filterTree = (nodes: FileNode[]): FileNode[] =>
       nodes
@@ -56,9 +63,10 @@ export const useFileTreeStore = create<FileTreeState>((set, get) => ({
             : node
         );
 
-    set(state => ({
+    set((state) => ({
       tree: filterTree(state.tree),
-      activeFile: state.activeFile?.path === targetPath ? null : state.activeFile,
+      selectedNode:
+        state.selectedNode?.path === targetPath ? null : state.selectedNode,
     }));
   },
 }));

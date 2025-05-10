@@ -1,11 +1,11 @@
 import type { FileNode } from "../model/types";
 import { useState } from "react";
 import styled from "styled-components";
-import { dfs } from "../model/dfs";
-
+// import { dfs } from "../model/dfs";
 import { FaFolder, FaFolderOpen, FaFile } from "react-icons/fa";
 import { VscFileCode } from "react-icons/vsc";
 import { BsFileEarmarkText } from "react-icons/bs";
+import { useFileTreeStore } from "../model/fileTreeStore";
 
 const TreeItem = styled.div<{ indent: number }>`
   padding-top: 0.25rem;
@@ -35,13 +35,15 @@ type TreeNodeProps = {
 
 export const TreeNode = ({ node, depth = 0 }: TreeNodeProps) => {
   const [open, setOpen] = useState(false);
+  const { setSelectedNode } = useFileTreeStore();
 
   const handleClick = () => {
+    setSelectedNode(node);
     if (node.isDirectory) {
       setOpen((prev) => !prev);
-      dfs(node, (n) => {
-        if (!n.isDirectory) console.log("파일:", n.name);
-      });
+      // dfs(node, (n) => {
+      //   if (!n.isDirectory) console.log("파일:", n.name);
+      // });
     } else {
       console.log("선택한 파일:", node.name);
     }

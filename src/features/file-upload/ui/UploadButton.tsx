@@ -1,6 +1,6 @@
 import { FaUpload } from "react-icons/fa";
 import { StyledButton } from "../../../shared/ui/Button";
-import { parseZipToFileTree } from "../../../shared/lib/fileNode";
+import { parseZipToFileTree } from "../../../shared";
 import { useFileTreeStore } from "../../../entities/file-tree/model/fileTreeStore";
 
 export const UploadButton = () => {
