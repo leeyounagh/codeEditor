@@ -1,62 +1,58 @@
 import styled from "styled-components";
 import { FaPlus } from "react-icons/fa6";
-import { useRef } from "react";
 import { StyledButton } from "../../../shared";
 import { useFileTreeStore } from "../../../entities/file-tree/model/fileTreeStore";
 
-const HiddenInput = styled.input`
-  display: none;
-`;
+const generateFileName = (base = "새 파일", ext = "txt", existingNames: string[]) => {
+  let index = 1;
+  let name = `${base}.${ext}`;
+  while (existingNames.includes(name)) {
+    name = `${base} (${index++}).${ext}`;
+  }
+  return name;
+};
 
 export const AddFileButton = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
   const selectedNode = useFileTreeStore((state) => state.selectedNode);
   const addNode = useFileTreeStore((state) => state.addNode);
   const setTree = useFileTreeStore((state) => state.setTree);
   const tree = useFileTreeStore((state) => state.tree);
 
-  const handleClick = () => {
-    inputRef.current?.click();
-  };
+  const handleAddFile = () => {
+    const existingNames = new Set<string>();
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const collectNames = (nodes: typeof tree) => {
+      nodes.forEach((node) => {
+        existingNames.add(node.name);
+        if (node.children) collectNames(node.children);
+      });
+    };
+    collectNames(tree);
 
-    const content = await file.text();
-    const newNode = {
-      name: file.name,
+    const fileName = generateFileName("새 파일", "txt", Array.from(existingNames));
+    const newFileNode = {
+      name: fileName,
       isDirectory: false,
-      content,
+      content: "",
     };
 
     if (selectedNode?.isDirectory) {
-      addNode(selectedNode.path, newNode);
+      addNode(selectedNode.path, newFileNode);
     } else {
       const rootNode = {
         id: crypto.randomUUID(),
-        name: file.name,
-        path: file.name,
+        name: fileName,
+        path: fileName,
         isDirectory: false,
-        content,
+        content: "",
       };
       setTree([...tree, rootNode]);
     }
- 
-    event.target.value = "";
   };
 
   return (
-    <>
-      <StyledButton onClick={handleClick}>
-        <FaPlus color="lightgray" size={16} />
-      </StyledButton>
-      <HiddenInput
-        ref={inputRef}
-        type="file"
-        onChange={handleFileChange}
-        accept="*/*"
-      />
-    </>
+    <StyledButton onClick={handleAddFile}>
+      <FaPlus color="lightgray" size={16} />
+    </StyledButton>
   );
 };
