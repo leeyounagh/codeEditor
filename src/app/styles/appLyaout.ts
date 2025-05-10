@@ -24,6 +24,7 @@ export const TabArea = styled.div`
   background-color: #1a1a1a;
   color: white;
   padding: 0 1rem;
+  padding-left:0px;
   border-bottom: 1px solid #333;
   height: 64px;
   white-space: nowrap;

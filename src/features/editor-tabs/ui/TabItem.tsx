@@ -17,6 +17,7 @@ const TabContainer = styled.div<{ $active: boolean }>`
   font-size: 14px;
   height: 100%;
   cursor: pointer;
+  min-width: 150px;
 `;
 export const TabItem = ({ tab, onClose, onClick }: Props) => {
   return (
