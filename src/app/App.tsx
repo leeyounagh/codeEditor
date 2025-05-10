@@ -20,19 +20,20 @@ function App() {
   const tree = useFileTreeStore((state) => state.tree);
   const setTree = useFileTreeStore((state) => state.setTree);
   const setSelectedNode = useFileTreeStore((state) => state.setSelectedNode);
-  const selectedNode =useFileTreeStore((state) => state.selectedNode);
+  const selectedNode = useFileTreeStore((state) => state.selectedNode);
+  const openTab = useFileTreeStore((state) => state.openTab);
 
   useEffect(() => {
     if (tree.length === 0) {
       setTree(mockTree);
 
-      // 기본 선택 파일: mockTree에서 첫 번째 파일 찾기
       const firstFile = findFirstFile(mockTree);
       if (firstFile) {
         setSelectedNode(firstFile);
+        openTab(firstFile);
       }
     }
-  }, [tree]);
+  }, [tree, setSelectedNode, setTree, openTab]);
 
   console.log("Selected Node:", selectedNode);
   return (
