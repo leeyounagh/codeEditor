@@ -56,7 +56,17 @@ export const EditorArea = styled.section`
   flex: 1;
   background-color: #1e1e1e;
   color: white;
-  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: auto;
+`;
+
+export const PreviewImage = styled.img`
+  max-width: 70%;
+  max-height: 60vh;
+  object-fit: contain;
+  padding: 1rem;
+  margin: 2rem auto;
+  display: block;
+  border-radius: 8px;
 `;

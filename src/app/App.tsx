@@ -1,4 +1,72 @@
-import { useEffect } from "react";
+// import { useEffect } from "react";
+// import { GlobalStyle } from "../shared";
+// import { FileTree } from "../entities/file-tree";
+// import { MonacoEditor } from "../entities";
+// import { UploadHandler } from "../features";
+// import { Tabs } from "../features";
+// import {
+//   AppContainer,
+//   Header,
+//   TabArea,
+//   Main,
+//   Sidebar,
+//   EditorArea,
+// } from "./styles/appLyaout";
+// import { useFileTreeStore } from "../entities/file-tree/model/fileTreeStore";
+// import { findFirstFile } from "../shared";
+// import { mockTree } from "../mock/mockTree";
+// import { dfsWithBinaryCheck } from "../shared";
+
+// function App() {
+//   const tree = useFileTreeStore((state) => state.tree);
+//   const setTree = useFileTreeStore((state) => state.setTree);
+//   const openTab = useFileTreeStore((state) => state.openTab);
+//   const { openedTabs, updateFileContent } = useFileTreeStore();
+//   const activeTab = openedTabs.find((t) => t.isActive);
+
+//   useEffect(() => {
+//     if (tree.length === 0) {
+//       // mockTree 그대로 사용 (isBinary 분석 안 함)
+//       setTree(mockTree);
+
+//       const firstFile = findFirstFile(mockTree);
+//       if (firstFile) {
+//         openTab(firstFile);
+//       }
+//     } else {
+//       //mockTree 외 zip 업로드 등에서 트리 변경된 경우만 isBinary인지 판별별
+//       tree.forEach((node) => dfsWithBinaryCheck(node));
+//     }
+//   }, [tree, setTree, openTab]);
+
+//   return (
+//     <>
+//       <GlobalStyle />
+//       <AppContainer>
+//         <Main>
+//           <Sidebar>
+//             <Header>
+//               <UploadHandler />
+//             </Header>
+//             <FileTree tree={tree} />
+//           </Sidebar>
+//           <EditorArea>
+//             <TabArea>
+//               <Tabs />
+//             </TabArea>
+//             <MonacoEditor
+//               file={activeTab}
+//               onChange={updateFileContent}
+//             />
+//           </EditorArea>
+//         </Main>
+//       </AppContainer>
+//     </>
+//   );
+// }
+
+// export default App;
+import { useEffect, useState } from "react";
 import { GlobalStyle } from "../shared";
 import { FileTree } from "../entities/file-tree";
 import { MonacoEditor } from "../entities";
@@ -11,6 +79,7 @@ import {
   Main,
   Sidebar,
   EditorArea,
+  PreviewImage
 } from "./styles/appLyaout";
 import { useFileTreeStore } from "../entities/file-tree/model/fileTreeStore";
 import { findFirstFile } from "../shared";
@@ -24,20 +93,43 @@ function App() {
   const { openedTabs, updateFileContent } = useFileTreeStore();
   const activeTab = openedTabs.find((t) => t.isActive);
 
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+
   useEffect(() => {
     if (tree.length === 0) {
-      // mockTree 그대로 사용 (isBinary 분석 안 함)
       setTree(mockTree);
-
       const firstFile = findFirstFile(mockTree);
       if (firstFile) {
         openTab(firstFile);
       }
     } else {
-      //mockTree 외 zip 업로드 등에서 트리 변경된 경우만 isBinary인지 판별별
       tree.forEach((node) => dfsWithBinaryCheck(node));
     }
   }, [tree, setTree, openTab]);
+
+  // binary 이미지 파일이면 src 생성 (data URL 처리)
+  useEffect(() => {
+    if (activeTab?.isBinary && activeTab.content) {
+      const content = activeTab.content;
+
+      const isDataUrl = content.startsWith("data:");
+      const isImageDataUrl = /^data:image\//.test(content);
+
+      if (isDataUrl && !isImageDataUrl) {
+        const base64Index = content.indexOf("base64,");
+        if (base64Index !== -1) {
+          const base64 = content.slice(base64Index + 7);
+          setImageSrc(`data:image/png;base64,${base64}`);
+        } else {
+          setImageSrc(null);
+        }
+      } else {
+        setImageSrc(content);
+      }
+    } else {
+      setImageSrc(null);
+    }
+  }, [activeTab]);
 
   return (
     <>
@@ -54,10 +146,21 @@ function App() {
             <TabArea>
               <Tabs />
             </TabArea>
-            <MonacoEditor
-              file={activeTab}
-              onChange={updateFileContent}
-            />
+
+            {activeTab?.isBinary ? (
+              imageSrc ? (
+                <PreviewImage
+                  src={imageSrc}
+                  alt={activeTab.name}
+                />
+              ) : (
+                <p style={{ padding: "1rem", color: "white" }}>
+                  이미지를 불러오는 중...
+                </p>
+              )
+            ) : (
+              <MonacoEditor file={activeTab} onChange={updateFileContent} />
+            )}
           </EditorArea>
         </Main>
       </AppContainer>

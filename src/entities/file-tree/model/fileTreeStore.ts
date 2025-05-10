@@ -74,7 +74,6 @@ export const useFileTreeStore = create<FileTreeState>()(
           ),
         }));
       },
-
       openTab: (node) =>
         set((state) => {
           const exists = state.openedTabs.find((t) => t.id === node.id);
@@ -86,11 +85,14 @@ export const useFileTreeStore = create<FileTreeState>()(
               })),
             };
           }
-
           return {
             openedTabs: [
               ...state.openedTabs.map((t) => ({ ...t, isActive: false })),
-              { ...node, isActive: true, content: node.content ?? "" },
+              {
+                ...node,
+                isActive: true,
+                // content: node.content ?? (node.isBinary ? undefined : ""),
+              },
             ],
           };
         }),
