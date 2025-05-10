@@ -1,23 +1,9 @@
 import styled from "styled-components";
 import { FaPlus } from "react-icons/fa6";
 import { useRef } from "react";
+import { StyledButton } from "../../../shared";
 
-const Button = styled.button`
-  display: inline-flex;
-  align-items: center;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
 
-  svg {
-    font-size: 16px;
-    margin-right: 6px;
-  }
-
-`;
 
 const HiddenInput = styled.input`
   display: none;
@@ -39,9 +25,9 @@ export const AddFileButton = () => {
 
   return (
     <>
-      <Button onClick={handleClick}>
+      <StyledButton onClick={handleClick}>
         <FaPlus color="lightgray"  size={16}/>
-      </Button>
+      </StyledButton>
       <HiddenInput
         ref={inputRef}
         type="file"

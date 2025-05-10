@@ -10,7 +10,7 @@ export const AppContainer = styled.div`
 `;
 
 export const Header = styled.header`
-  padding-left: 1.5rem;
+  padding-left: 1rem;
   background-color: #1a1a1a;
   color: white;
   border-bottom: 1px solid #333;
