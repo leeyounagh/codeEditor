@@ -1,26 +1,28 @@
 import type { FileNode } from "../model/types";
 import { useState } from "react";
 import styled from "styled-components";
-// import { dfs } from "../model/dfs";
 import { FaFolder, FaFolderOpen, FaFile } from "react-icons/fa";
 import { VscFileCode } from "react-icons/vsc";
 import { BsFileEarmarkText } from "react-icons/bs";
 import { useFileTreeStore } from "../model/fileTreeStore";
 
-const TreeItem = styled.div<{ indent: number }>`
+const TreeItem = styled.div<{ indent: number; isSelected: boolean }>`
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
-  padding-left: ${({ indent }) => `${indent * 1.5}rem`};
+  padding-left: ${({ indent }) => `${Math.max(indent, 1) * 1.5}rem`};
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  // padding-left: 1.5rem;
+  background-color: ${({ isSelected }) =>
+    isSelected ? "#2a2a2a" : "transparent"};
+
   &:hover {
     background-color: #2d2d2d;
     color: white;
   }
 `;
+
 const TreeText = styled.span`
   white-space: nowrap;
   overflow: hidden;
@@ -28,6 +30,7 @@ const TreeText = styled.span`
   display: block;
   max-width: 100%;
 `;
+
 type TreeNodeProps = {
   node: FileNode;
   depth?: number;
@@ -35,22 +38,21 @@ type TreeNodeProps = {
 
 export const TreeNode = ({ node, depth = 0 }: TreeNodeProps) => {
   const [open, setOpen] = useState(false);
-  const { setSelectedNode, openTab } = useFileTreeStore();
+  const { setSelectedNode, openTab, selectedNode } = useFileTreeStore();
+
+  const isSelected = selectedNode?.id === node.id;
 
   const handleClick = () => {
     setSelectedNode(node);
     if (node.isDirectory) {
       setOpen((prev) => !prev);
     } else {
-      console.log("선택한 파일:", node.name);
       openTab(node);
     }
   };
 
   const renderIcon = () => {
-    if (node.isDirectory) {
-      return open ? <FaFolderOpen /> : <FaFolder />;
-    }
+    if (node.isDirectory) return open ? <FaFolderOpen /> : <FaFolder />;
 
     const ext = node.name.split(".").pop()?.toLowerCase();
     if (!ext) return <FaFile />;
@@ -66,7 +68,7 @@ export const TreeNode = ({ node, depth = 0 }: TreeNodeProps) => {
 
   return (
     <div>
-      <TreeItem onClick={handleClick} indent={depth}>
+      <TreeItem onClick={handleClick} indent={depth+1} isSelected={isSelected}>
         {renderIcon()}
         <TreeText>{node.name}</TreeText>
       </TreeItem>

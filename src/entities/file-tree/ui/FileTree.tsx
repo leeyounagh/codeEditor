@@ -3,7 +3,7 @@ import { TreeNode } from './TreeNode';
 
 export const FileTree = ({ tree }: { tree: FileNode[] }) => {
   return (
-    <div style={{ paddingLeft: '1.5rem' }}>
+    <div >
       {tree.map(node => (
         <TreeNode key={node.id} node={node} />
       ))}
