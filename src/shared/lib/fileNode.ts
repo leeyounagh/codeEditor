@@ -2,7 +2,15 @@ import JSZip from "jszip";
 import type { FileNode } from "../../entities/file-tree/model/types";
 
 // 이미지 확장자 판별
-const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"];
+const imageExtensions = [
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".bmp",
+  ".svg",
+];
 const isImageFile = (filename: string) =>
   imageExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
 
@@ -32,10 +40,11 @@ export async function parseZipToFileTree(zipFile: File): Promise<FileNode[]> {
     if (!isDirectory) {
       if (isImageFile(name)) {
         const blob = await file.async("blob");
-        content = await readAsDataURL(blob); // ✅ base64로 변환
-        isBinary = true;
+        content = await readAsDataURL(blob); // base64로 변환
+        isBinary = true; // ✅ 오직 이미지일 때만 true
       } else {
         content = await file.async("string");
+        isBinary = false; // 명시적으로 false 설정 (optional)
       }
     }
 
