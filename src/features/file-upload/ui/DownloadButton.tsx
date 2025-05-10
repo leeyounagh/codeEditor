@@ -3,9 +3,9 @@ import { StyledButton } from "../../../shared";
 import { useFileTreeStore } from "../../../entities/file-tree/model/fileTreeStore";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import { type FileNode } from "../../../entities/file-tree/model/types";
+import type { FileNode } from "../../../entities/file-tree/model/types";
 
-// base64 -> Uint8Array (바이너리 복원)
+// base64 → Uint8Array 변환
 const decodeBase64ToUint8Array = (base64: string) => {
   const binary = atob(base64);
   const len = binary.length;
@@ -14,6 +14,64 @@ const decodeBase64ToUint8Array = (base64: string) => {
     uint8Array[i] = binary.charCodeAt(i);
   }
   return uint8Array;
+};
+
+// MIME → 확장자 추론
+const getExtensionFromMime = (mime: string): string => {
+  switch (mime) {
+    case "image/png":
+      return ".png";
+    case "image/jpeg":
+      return ".jpg";
+    case "image/webp":
+      return ".webp";
+    case "image/svg+xml":
+      return ".svg";
+    default:
+      return "";
+  }
+};
+
+// 재귀적으로 ZIP에 파일 추가
+const addToZip = (nodes: FileNode[], currentFolder: JSZip | null) => {
+  if (!currentFolder) return;
+
+  nodes.forEach((node) => {
+    if (node.isDirectory) {
+      const folder = currentFolder.folder(node.name);
+      if (node.children) {
+        addToZip(node.children, folder);
+      }
+    } else {
+      const content = node.content ?? "";
+
+      // 이미지 파일 (정상 MIME 또는 잘못 저장된 경우 포함)
+      const isImageByMime = /^data:image\//.test(content);
+      const isImageByExt =
+        /^data:application\/octet-stream/.test(content) &&
+        node.name.match(/\.(png|jpg|jpeg|webp|svg)$/i);
+
+      if (isImageByMime || isImageByExt) {
+        const [mimePart, base64Data] = content.split(",");
+        const mime = mimePart.split(":")[1].split(";")[0];
+        const extension = getExtensionFromMime(mime);
+        const binaryData = decodeBase64ToUint8Array(base64Data);
+
+        const fileName = node.name.includes(".")
+          ? node.name
+          : node.name + extension;
+
+        currentFolder.file(fileName, binaryData);
+      } else {
+        // 일반 텍스트 파일 저장
+        const fileName = node.name.includes(".")
+          ? node.name
+          : node.name + ".txt";
+
+        currentFolder.file(fileName, content);
+      }
+    }
+  });
 };
 
 export const DownloadButton = () => {
@@ -34,40 +92,9 @@ export const DownloadButton = () => {
     let zipFolderName = selectedNode.name.replace(/\.[^/.]+$/, "");
     let zipFolder = zip.folder(zipFolderName);
 
-    const addToZip = (nodes: FileNode[], currentFolder: JSZip | null) => {
-      if (!currentFolder) return;
-
-      nodes.forEach((node) => {
-        if (node.isDirectory) {
-          const folder = currentFolder.folder(node.name);
-          if (node.children) {
-            addToZip(node.children, folder);
-          }
-        } else {
-          const content = node.content ?? "";
-          if (/^data:image\//.test(content)) {
-            // ✅ base64 → 바이너리로 복원해서 저장
-            const base64 = content.split(",")[1];
-            const binaryData = decodeBase64ToUint8Array(base64);
-            currentFolder.file(node.name, binaryData);
-          } else {
-            currentFolder.file(node.name, content);
-          }
-        }
-      });
-    };
-
     if (isRootFile) {
-      const content = selectedNode.content ?? "";
-      if (/^data:image\//.test(content)) {
-        const base64 = content.split(",")[1];
-        const binaryData = decodeBase64ToUint8Array(base64);
-        zipFolder?.file(selectedNode.name, binaryData);
-      } else {
-        zipFolder?.file(selectedNode.name, content);
-      }
+      addToZip([selectedNode], zipFolder);
     } else {
-      // 폴더 선택 시 전체 하위 포함
       const findRootNode = (
         target: FileNode,
         roots: FileNode[]
@@ -85,22 +112,24 @@ export const DownloadButton = () => {
       };
 
       const root = findRootNode(selectedNode, tree);
-
       if (!root) {
         alert("ZIP 루트를 찾을 수 없습니다.");
         return;
       }
 
       zipFolder = zip.folder(root.name);
-      addToZip(root.children || [], zipFolder);
       zipFolderName = root.name;
+
+      console.log("📁 폴더 다운로드 시작:", root.name);
+      addToZip(root.children || [], zipFolder);
     }
 
     try {
       const blob = await zip.generateAsync({ type: "blob" });
+      console.log("✅ ZIP 생성 완료:", blob.size, "bytes");
       saveAs(blob, `${zipFolderName}.zip`);
     } catch (err) {
-      console.error("ZIP 생성 오류:", err);
+      console.error("❌ ZIP 생성 오류:", err);
       alert("ZIP 파일을 생성하는 중 오류가 발생했습니다.");
     }
   };

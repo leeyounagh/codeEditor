@@ -131,6 +131,8 @@ function App() {
     }
   }, [activeTab]);
 
+  console.log("activeTab", activeTab);
+
   return (
     <>
       <GlobalStyle />
