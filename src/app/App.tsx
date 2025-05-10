@@ -20,8 +20,9 @@ import { dfsWithBinaryCheck } from "../shared";
 function App() {
   const tree = useFileTreeStore((state) => state.tree);
   const setTree = useFileTreeStore((state) => state.setTree);
-  const selectedNode = useFileTreeStore((state) => state.selectedNode);
   const openTab = useFileTreeStore((state) => state.openTab);
+  const { openedTabs, updateFileContent } = useFileTreeStore();
+  const activeTab = openedTabs.find((t) => t.isActive);
 
   useEffect(() => {
     if (tree.length === 0) {
@@ -38,8 +39,6 @@ function App() {
     }
   }, [tree, setTree, openTab]);
 
-  console.log("Selected Node:", selectedNode);
-  console.log("File Tree:", tree);
   return (
     <>
       <GlobalStyle />
@@ -55,7 +54,10 @@ function App() {
             <TabArea>
               <Tabs />
             </TabArea>
-            <MonacoEditor />
+            <MonacoEditor
+              file={activeTab}
+              onChange={updateFileContent}
+            />
           </EditorArea>
         </Main>
       </AppContainer>

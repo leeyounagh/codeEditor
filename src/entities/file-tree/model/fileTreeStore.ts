@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import type { FileNode } from "./types";
 import { openDB } from "idb";
 
-// ✅ IndexedDB 기반 Storage 생성
+//  IndexedDB 기반 Storage 생성
 const indexedDBStorage = createJSONStorage<FileTreeState>(() => ({
   getItem: async (name) => {
     const db = await openDB("zustand-db", 1, {
@@ -23,7 +23,7 @@ const indexedDBStorage = createJSONStorage<FileTreeState>(() => ({
   },
 }));
 
-// ✅ 상태 타입 정의
+// 상태 타입 정의
 interface FileTreeState {
   tree: FileNode[];
   selectedNode: FileNode | null;
@@ -31,6 +31,8 @@ interface FileTreeState {
 
   setTree: (tree: FileNode[]) => void;
   setSelectedNode: (node: FileNode | null) => void;
+  setOpenedTabs: (tabs: FileNode[]) => void;
+  updateFileContent: (path: string, content: string) => void;
 
   openTab: (node: FileNode) => void;
   closeTab: (nodeId: string) => void;
@@ -42,7 +44,7 @@ interface FileTreeState {
   deleteNode: (targetPath: string) => void;
 }
 
-// ✅ zustand store 생성
+// zustand store 생성
 export const useFileTreeStore = create<FileTreeState>()(
   persist(
     (set, get) => ({
@@ -51,8 +53,27 @@ export const useFileTreeStore = create<FileTreeState>()(
       openedTabs: [],
 
       setTree: (tree) => set({ tree }),
-
       setSelectedNode: (node) => set({ selectedNode: node }),
+      setOpenedTabs: (tabs) => set({ openedTabs: tabs }),
+
+      updateFileContent: (path, content) => {
+        const update = (nodes: FileNode[]): FileNode[] =>
+          nodes.map((node) => {
+            if (node.path === path && !node.isDirectory) {
+              return { ...node, content: content ?? "" };
+            } else if (node.children) {
+              return { ...node, children: update(node.children) };
+            }
+            return node;
+          });
+
+        set((state) => ({
+          tree: update(state.tree),
+          openedTabs: state.openedTabs.map((tab) =>
+            tab.path === path ? { ...tab, content: content ?? "" } : tab
+          ),
+        }));
+      },
 
       openTab: (node) =>
         set((state) => {
@@ -69,7 +90,7 @@ export const useFileTreeStore = create<FileTreeState>()(
           return {
             openedTabs: [
               ...state.openedTabs.map((t) => ({ ...t, isActive: false })),
-              { ...node, isActive: true },
+              { ...node, isActive: true, content: node.content ?? "" },
             ],
           };
         }),
@@ -77,10 +98,13 @@ export const useFileTreeStore = create<FileTreeState>()(
       closeTab: (nodeId) =>
         set((state) => {
           const remainingTabs = state.openedTabs.filter((t) => t.id !== nodeId);
-          const closedWasActive = state.openedTabs.find((t) => t.id === nodeId)?.isActive;
-          const newActive = closedWasActive && remainingTabs.length
-            ? remainingTabs[remainingTabs.length - 1]
-            : null;
+          const closedWasActive = state.openedTabs.find(
+            (t) => t.id === nodeId
+          )?.isActive;
+          const newActive =
+            closedWasActive && remainingTabs.length
+              ? remainingTabs[remainingTabs.length - 1]
+              : null;
 
           return {
             openedTabs: remainingTabs.map((t) => ({

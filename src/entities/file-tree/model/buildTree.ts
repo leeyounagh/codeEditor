@@ -1,5 +1,5 @@
 import type { FileNode } from './types';
-import { getFileType } from './getFileType';
+import { getFileType } from '../../../shared/lib/getFileType';
 
 export const buildTree = (files: { path: string; content: string | ArrayBuffer }[]): FileNode[] => {
   const root: FileNode[] = [];
