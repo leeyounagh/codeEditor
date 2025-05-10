@@ -29,7 +29,6 @@ function App() {
 
       const firstFile = findFirstFile(mockTree);
       if (firstFile) {
-        setSelectedNode(firstFile);
         openTab(firstFile);
       }
     }

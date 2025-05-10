@@ -17,7 +17,7 @@ export const DownloadButton = () => {
       return;
     }
 
-    // ✅ 선택된 노드를 포함하는 최상위 루트 노드 찾기
+    // 선택된 노드를 포함하는 최상위 루트 노드 찾기
     const findRootNode = (target: FileNode, roots: FileNode[]): FileNode | null => {
       const isDescendant = (node: FileNode, targetPath: string): boolean => {
         if (node.path === targetPath) return true;
@@ -61,7 +61,6 @@ export const DownloadButton = () => {
     try {
       const blob = await zip.generateAsync({ type: "blob" });
       saveAs(blob, `${root.name}.zip`);
-      console.log("ZIP 다운로드 완료:", `${root.name}.zip`);
     } catch (err) {
       console.error("ZIP 생성 오류:", err);
       alert("ZIP 파일을 생성하는 중 오류가 발생했습니다.");

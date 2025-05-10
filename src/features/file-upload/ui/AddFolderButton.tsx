@@ -1,42 +1,39 @@
-import styled from "styled-components";
 import { FaFolderPlus } from "react-icons/fa";
-import { useRef } from "react";
 import { StyledButton } from "../../../shared";
-
-
-const HiddenInput = styled.input`
-  display: none;
-`;
+import { useFileTreeStore } from "../../../entities/file-tree/model/fileTreeStore";
+import { type FileNode } from "../../../entities/file-tree/model/types";
 
 export const AddFolderButton = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const selectedNode = useFileTreeStore((state) => state.selectedNode);
+  const addNode = useFileTreeStore((state) => state.addNode);
+  const setTree = useFileTreeStore((state) => state.setTree);
+  const tree = useFileTreeStore((state) => state.tree);
 
-  const handleClick = () => {
-    inputRef.current?.click();
-  };
+  const createEmptyFolder = () => {
+    const folderName = `새 폴더 ${Math.floor(Math.random() * 1000)}`; // 임시 폴더 이름
+    const newFolder = {
+      name: folderName,
+      isDirectory: true,
+    };
 
-  const handleFolderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      console.log("📁 선택된 폴더 파일 목록:");
-      Array.from(files).forEach((file) => {
-        console.log(file.webkitRelativePath);
-      });
+    if (selectedNode?.isDirectory) {
+      addNode(selectedNode.path, newFolder);
+    } else {
+      const newRootNode: FileNode = {
+        id: crypto.randomUUID(),
+        name: folderName,
+        path: folderName,
+        isDirectory: true,
+        children: [],
+      };
+      setTree([...tree, newRootNode]);
     }
   };
 
   return (
-    <>
-      <StyledButton onClick={handleClick}>
-        <FaFolderPlus color="lightgray" />
-      </StyledButton>
-      <HiddenInput
-        ref={inputRef}
-        type="file"
-        webkitdirectory="true" 
-        directory="" 
-        onChange={handleFolderChange}
-      />
-    </>
+    <StyledButton onClick={createEmptyFolder}>
+      <FaFolderPlus color="lightgray" />
+    </StyledButton>
   );
 };
+

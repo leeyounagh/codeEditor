@@ -5,7 +5,7 @@ import { useFileTreeStore } from "../../../entities/file-tree/model/fileTreeStor
 
 export const UploadButton = () => {
   const setTree = useFileTreeStore((state) => state.setTree);
-  const tree = useFileTreeStore((state) => state.tree); // ✅ 기존 트리 가져오기
+  const tree = useFileTreeStore((state) => state.tree);
 
   const handleUpload = () => {
     const input = document.createElement("input");
@@ -30,8 +30,7 @@ export const UploadButton = () => {
           };
 
           try {
-            setTree([...tree, zipRoot]); // ✅ 여기 감싸기
-            console.log("트리에 zip 루트 추가 완료:", zipRoot);
+            setTree([...tree, zipRoot]); 
           } catch (err) {
             console.error("저장 중 오류 발생:", err);
             alert(
