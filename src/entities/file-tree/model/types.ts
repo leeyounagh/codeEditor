@@ -6,4 +6,5 @@ export type FileNode = {
   content?: string;
   isBinary?: boolean;
   children?: FileNode[];
+  isActive?: boolean;
 };

@@ -35,17 +35,15 @@ type TreeNodeProps = {
 
 export const TreeNode = ({ node, depth = 0 }: TreeNodeProps) => {
   const [open, setOpen] = useState(false);
-  const { setSelectedNode } = useFileTreeStore();
+  const { setSelectedNode, openTab } = useFileTreeStore();
 
   const handleClick = () => {
     setSelectedNode(node);
     if (node.isDirectory) {
       setOpen((prev) => !prev);
-      // dfs(node, (n) => {
-      //   if (!n.isDirectory) console.log("파일:", n.name);
-      // });
     } else {
       console.log("선택한 파일:", node.name);
+      openTab(node);
     }
   };
 

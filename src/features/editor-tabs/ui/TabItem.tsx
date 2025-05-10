@@ -1,8 +1,9 @@
 import type { Tab } from "../model/types";
 import styled from "styled-components";
+import type { FileNode } from "../../../entities/file-tree/model/types";
 
 type Props = {
-  tab: Tab;
+  tab: Tab & FileNode;
   onClose: () => void;
   onClick: () => void;
 };
@@ -25,7 +26,7 @@ export const TabItem = ({ tab, onClose, onClick }: Props) => {
       {tab.name}
       <button
         onClick={(e) => {
-          e.stopPropagation(); 
+          e.stopPropagation();
           onClose();
         }}
         style={{ marginLeft: 8, color: "lightgray" }}
