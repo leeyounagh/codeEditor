@@ -27,9 +27,8 @@ export const TabArea = styled.div`
   padding-left:0px;
   border-bottom: 1px solid #333;
   height: 64px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-x: auto;
+  
 `;
 
 export const Main = styled.main`
@@ -48,7 +47,7 @@ export const Sidebar = styled.aside`
   color: #e0e0e0;
   border-right: 1px solid #333;
   white-space: nowrap;
-  overflow: hidden;
+  overflow-y: auto;
   text-overflow: ellipsis;
 `;
 

@@ -1,81 +1,20 @@
-// import JSZip from "jszip";
-// import type { FileNode } from "../../entities/file-tree/model/types";
-
-// export async function parseZipToFileTree(zipFile: File): Promise<FileNode[]> {
-//   const zip = await JSZip.loadAsync(zipFile);
-//   const root: FileNode[] = [];
-//   const fileMap = new Map<string, FileNode>();
-
-
-//   for (const [filePath, file] of Object.entries(zip.files)) {
-//     const parts = filePath.split("/").filter(Boolean); // 빈 문자열 제거
-//     const name = parts[parts.length - 1];
-//     const isDirectory = file.dir;
-
-//     const node: FileNode = {
-//       id: crypto.randomUUID(),
-//       name,
-//       path: filePath,
-//       isDirectory,
-//       children: isDirectory ? [] : undefined,
-//       content: isDirectory ? undefined : (await file.async("string")),
-//     };
-
-//     fileMap.set(filePath, node);
-
-//     // 부모 경로 결정
-//     if (parts.length === 1) {
-//       // 루트 노드
-//       root.push(node);
-//     } else {
-//       const parentPath = parts.slice(0, -1).join("/") + "/";
-//       let parent = fileMap.get(parentPath);
-
-//       // ✅ 중간 디렉토리 자동 생성
-//       if (!parent) {
-//         parent = {
-//           id: crypto.randomUUID(),
-//           name: parts[parts.length - 2],
-//           path: parentPath,
-//           isDirectory: true,
-//           children: [],
-//         };
-//         fileMap.set(parentPath, parent);
-
-//         // 최상위면 루트에 넣음
-//         if (parts.length === 2) {
-//           root.push(parent);
-//         } else {
-//           const grandParentPath = parts.slice(0, -2).join("/") + "/";
-//           const grand = fileMap.get(grandParentPath);
-//           if (grand?.children) grand.children.push(parent);
-//         }
-//       }
-
-//       if (parent.children) {
-//         parent.children.push(node);
-//       }
-//     }
-//   }
-
-//   return root;
-// }
-
 import JSZip from "jszip";
 import type { FileNode } from "../../entities/file-tree/model/types";
 
-function isImageFile(filename: string): boolean {
-  return /\.(png|jpe?g|gif|svg|webp)$/i.test(filename);
-}
+// 이미지 확장자 판별
+const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"];
+const isImageFile = (filename: string) =>
+  imageExtensions.some((ext) => filename.toLowerCase().endsWith(ext));
 
-function readAsDataURL(blob: Blob): Promise<string> {
+// Blob을 base64(Data URL)로 변환
+const readAsDataURL = (blob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
-}
+};
 
 export async function parseZipToFileTree(zipFile: File): Promise<FileNode[]> {
   const zip = await JSZip.loadAsync(zipFile);
@@ -83,7 +22,7 @@ export async function parseZipToFileTree(zipFile: File): Promise<FileNode[]> {
   const fileMap = new Map<string, FileNode>();
 
   for (const [filePath, file] of Object.entries(zip.files)) {
-    const parts = filePath.split("/").filter(Boolean);
+    const parts = filePath.split("/").filter(Boolean); // 빈 문자열 제거
     const name = parts[parts.length - 1];
     const isDirectory = file.dir;
 
@@ -93,7 +32,7 @@ export async function parseZipToFileTree(zipFile: File): Promise<FileNode[]> {
     if (!isDirectory) {
       if (isImageFile(name)) {
         const blob = await file.async("blob");
-        content = await readAsDataURL(blob); // ✅ 이미지 → base64 with MIME
+        content = await readAsDataURL(blob); // ✅ base64로 변환
         isBinary = true;
       } else {
         content = await file.async("string");
@@ -113,11 +52,12 @@ export async function parseZipToFileTree(zipFile: File): Promise<FileNode[]> {
     fileMap.set(filePath, node);
 
     if (parts.length === 1) {
-      root.push(node);
+      root.push(node); // 루트 노드
     } else {
       const parentPath = parts.slice(0, -1).join("/") + "/";
       let parent = fileMap.get(parentPath);
 
+      // 중간 폴더 자동 생성
       if (!parent) {
         parent = {
           id: crypto.randomUUID(),
@@ -131,8 +71,8 @@ export async function parseZipToFileTree(zipFile: File): Promise<FileNode[]> {
         if (parts.length === 2) {
           root.push(parent);
         } else {
-          const grandParentPath = parts.slice(0, -2).join("/") + "/";
-          const grand = fileMap.get(grandParentPath);
+          const grandPath = parts.slice(0, -2).join("/") + "/";
+          const grand = fileMap.get(grandPath);
           if (grand?.children) grand.children.push(parent);
         }
       }

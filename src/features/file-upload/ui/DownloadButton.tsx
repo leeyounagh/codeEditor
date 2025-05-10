@@ -5,13 +5,22 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { type FileNode } from "../../../entities/file-tree/model/types";
 
-
+// base64 -> Uint8Array (바이너리 복원)
+const decodeBase64ToUint8Array = (base64: string) => {
+  const binary = atob(base64);
+  const len = binary.length;
+  const uint8Array = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    uint8Array[i] = binary.charCodeAt(i);
+  }
+  return uint8Array;
+};
 
 export const DownloadButton = () => {
   const tree = useFileTreeStore((state) => state.tree);
   const selectedNode = useFileTreeStore((state) => state.selectedNode);
 
-    const handleDownload = async () => {
+  const handleDownload = async () => {
     if (!selectedNode) {
       alert("다운로드할 항목을 먼저 선택해주세요.");
       return;
@@ -27,6 +36,7 @@ export const DownloadButton = () => {
 
     const addToZip = (nodes: FileNode[], currentFolder: JSZip | null) => {
       if (!currentFolder) return;
+
       nodes.forEach((node) => {
         if (node.isDirectory) {
           const folder = currentFolder.folder(node.name);
@@ -34,21 +44,40 @@ export const DownloadButton = () => {
             addToZip(node.children, folder);
           }
         } else {
-          currentFolder.file(node.name, node.content ?? "");
+          const content = node.content ?? "";
+          if (/^data:image\//.test(content)) {
+            // ✅ base64 → 바이너리로 복원해서 저장
+            const base64 = content.split(",")[1];
+            const binaryData = decodeBase64ToUint8Array(base64);
+            currentFolder.file(node.name, binaryData);
+          } else {
+            currentFolder.file(node.name, content);
+          }
         }
       });
     };
 
     if (isRootFile) {
-      // ✅ 루트에 있는 단일 파일인 경우 → 폴더 만들고 그 안에 파일 1개만
-      zipFolder?.file(selectedNode.name, selectedNode.content ?? "");
+      const content = selectedNode.content ?? "";
+      if (/^data:image\//.test(content)) {
+        const base64 = content.split(",")[1];
+        const binaryData = decodeBase64ToUint8Array(base64);
+        zipFolder?.file(selectedNode.name, binaryData);
+      } else {
+        zipFolder?.file(selectedNode.name, content);
+      }
     } else {
-      // ✅ 기존 로직: 선택된 노드를 포함하는 루트 폴더 전체 압축
-      const findRootNode = (target: FileNode, roots: FileNode[]): FileNode | null => {
+      // 폴더 선택 시 전체 하위 포함
+      const findRootNode = (
+        target: FileNode,
+        roots: FileNode[]
+      ): FileNode | null => {
         const isDescendant = (node: FileNode, targetPath: string): boolean => {
           if (node.path === targetPath) return true;
           if (node.children) {
-            return node.children.some((child) => isDescendant(child, targetPath));
+            return node.children.some((child) =>
+              isDescendant(child, targetPath)
+            );
           }
           return false;
         };
