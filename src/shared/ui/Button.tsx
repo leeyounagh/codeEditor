@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 interface StyledButtonProps {
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>
   backgroundColor?: string;
   color?: string;
   padding?: string;
