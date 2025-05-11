@@ -15,7 +15,6 @@ export const UploadButton = () => {
     input.onchange = async (e: Event) => {
       const file = (e.target as HTMLInputElement)?.files?.[0];
       if (file) {
-        console.log("업로드된 파일:", file);
 
         try {
           const parsedTree = await parseZipToFileTree(file);
