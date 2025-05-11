@@ -29,12 +29,14 @@ function App() {
 
   useEffect(() => {
     if (tree.length === 0) {
+      // 트리가 비어있을 때 mockTree로 초기화
       setTree(mockTree);
       const firstFile = findFirstFile(mockTree);
       if (firstFile) {
         openTab(firstFile);
       }
     } else {
+      // 트리가 비어있지 않을 때 dfsWithBinaryCheck 호출
       tree.forEach((node) => dfsWithBinaryCheck(node));
     }
   }, [tree, setTree, openTab]);
@@ -62,7 +64,6 @@ function App() {
     }
   }, [activeTab]);
 
-  console.log("activeTab", activeTab);
 
   return (
     <>

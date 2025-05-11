@@ -21,6 +21,8 @@ export const MonacoEditor = ({ file, onChange }: Props) => {
   const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
   const changeListenerRef = useRef<monaco.IDisposable | null>(null); //  변경 감지용
 
+
+
   useEffect(() => {
     if (file) {
       const uri = monaco.Uri.parse(`file:///${file.path}`);

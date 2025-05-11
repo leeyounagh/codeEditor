@@ -1,27 +1,34 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { FileNode } from "./types";
-import { openDB } from "idb";
 
-//  IndexedDB 기반 Storage 생성
-const indexedDBStorage = createJSONStorage<FileTreeState>(() => ({
-  getItem: async (name) => {
-    const db = await openDB("zustand-db", 1, {
-      upgrade(db) {
-        db.createObjectStore("store");
+//  테스트 환경 여부 확인
+const isTestEnv = typeof process !== 'undefined' && process.env.VITEST;
+
+//  storage 정의 위치를 위로 올려 테스트 환경 조건 안에서 처리
+const storage = isTestEnv
+  ? undefined
+  : createJSONStorage<FileTreeState>(() => ({
+      getItem: async (name) => {
+        const { openDB } = await import("idb");
+        const db = await openDB("zustand-db", 1, {
+          upgrade(db) {
+            db.createObjectStore("store");
+          },
+        });
+        return (await db.get("store", name)) ?? null;
       },
-    });
-    return (await db.get("store", name)) ?? null;
-  },
-  setItem: async (name, value) => {
-    const db = await openDB("zustand-db", 1);
-    await db.put("store", value, name);
-  },
-  removeItem: async (name) => {
-    const db = await openDB("zustand-db", 1);
-    await db.delete("store", name);
-  },
-}));
+      setItem: async (name, value) => {
+        const { openDB } = await import("idb");
+        const db = await openDB("zustand-db", 1);
+        await db.put("store", value, name);
+      },
+      removeItem: async (name) => {
+        const { openDB } = await import("idb");
+        const db = await openDB("zustand-db", 1);
+        await db.delete("store", name);
+      },
+    }));
 
 // 상태 타입 정의
 interface FileTreeState {
@@ -78,6 +85,7 @@ export const useFileTreeStore = create<FileTreeState>()(
               : state.selectedNode,
         }));
       },
+
       openTab: (node) =>
         set((state) => {
           const exists = state.openedTabs.find((t) => t.id === node.id);
@@ -95,7 +103,6 @@ export const useFileTreeStore = create<FileTreeState>()(
               {
                 ...node,
                 isActive: true,
-                // content: node.content ?? (node.isBinary ? undefined : ""),
               },
             ],
           };
@@ -165,7 +172,8 @@ export const useFileTreeStore = create<FileTreeState>()(
     }),
     {
       name: "file-tree-store",
-      storage: indexedDBStorage,
+      storage, 
+      skipHydration: true, 
     }
   )
 );

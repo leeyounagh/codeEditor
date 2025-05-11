@@ -18,7 +18,7 @@ const readAsDataURL = (blob: Blob): Promise<string> => {
   });
 };
 
-export async function parseZipToFileTree(zipFile: File): Promise<FileNode[]> {
+export async function parseZipToFileTree(zipFile: Blob | File| Uint8Array): Promise<FileNode[]> {
   const zip = await JSZip.loadAsync(zipFile);
   const root: FileNode[] = [];
   const fileMap = new Map<string, FileNode>();
