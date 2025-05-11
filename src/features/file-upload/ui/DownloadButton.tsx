@@ -63,12 +63,16 @@ const addToZip = (nodes: FileNode[], currentFolder: JSZip | null) => {
 
         currentFolder.file(fileName, binaryData);
       } else {
-        // 일반 텍스트 파일 저장
         const fileName = node.name.includes(".")
           ? node.name
           : node.name + ".txt";
 
-        currentFolder.file(fileName, content);
+        if (typeof content === "string") {
+
+          currentFolder.file(fileName, content);
+        } else {
+          currentFolder.file(fileName, "");
+        }
       }
     }
   });
@@ -120,13 +124,11 @@ export const DownloadButton = () => {
       zipFolder = zip.folder(root.name);
       zipFolderName = root.name;
 
-      console.log("📁 폴더 다운로드 시작:", root.name);
       addToZip(root.children || [], zipFolder);
     }
 
     try {
       const blob = await zip.generateAsync({ type: "blob" });
-      console.log("✅ ZIP 생성 완료:", blob.size, "bytes");
       saveAs(blob, `${zipFolderName}.zip`);
     } catch (err) {
       console.error("❌ ZIP 생성 오류:", err);

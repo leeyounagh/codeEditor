@@ -72,6 +72,10 @@ export const useFileTreeStore = create<FileTreeState>()(
           openedTabs: state.openedTabs.map((tab) =>
             tab.path === path ? { ...tab, content: content ?? "" } : tab
           ),
+          selectedNode:
+            state.selectedNode?.path === path
+              ? { ...state.selectedNode, content: content ?? "" }
+              : state.selectedNode,
         }));
       },
       openTab: (node) =>
