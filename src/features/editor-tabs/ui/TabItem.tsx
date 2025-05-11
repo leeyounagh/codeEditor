@@ -10,7 +10,7 @@ type Props = {
 };
 const TabContainer = styled.div<{ $active: boolean }>`
   padding: 8px 5px 8px 20px;
-  background: ${({ $active }) => ($active ? "#1e1e1e" : "#1a1a1a")};
+  background: ${({ $active }) => ($active ? "#2a2d2e" : "#1a1a1a")};
   border-bottom: none;
   display: flex;
   align-items: center;
