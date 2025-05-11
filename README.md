@@ -143,6 +143,19 @@ code-editor/
 
 - 아이콘 버튼 등에는 `data-testid` 속성을 명시적으로 부여하여 셀렉터 안정성 확보
 
+### 🚀 실행 방법
 
+```bash
+# 1. 의존성 설치
+npm install
+
+# 2. 개발 서버 실행 (Vite + React)
+npm run dev
+
+# 3. 단위 테스트 실행 (Vitest + React Testing Library)
+npm run test
+
+# 4. E2E 테스트 실행 (Playwright)
+npx playwright test
 
 
