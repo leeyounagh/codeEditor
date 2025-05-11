@@ -127,11 +127,6 @@ code-editor/
 - 전역 상태를 `zustand`로 구성하고, `persist` 미들웨어를 통해 IndexedDB에 저장합니다.
 - 테스트 환경에서는 저장소를 사용하지 않도록 분기 처리합니다.
 
-```ts
-const isTestEnv = typeof process !== 'undefined' && process.env.VITEST;
-const storage = isTestEnv ? undefined : createJSONStorage(...);
-```
-
 주요 상태:
 
 - `tree`: 파일 트리 구조
