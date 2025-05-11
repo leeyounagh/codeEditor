@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import { FaPlus } from "react-icons/fa6";
 import { StyledButton } from "../../../shared";
 import { useFileTreeStore } from "../../../entities/file-tree/model/fileTreeStore";
