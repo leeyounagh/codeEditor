@@ -19,10 +19,13 @@ import { mockTree } from "../mock/mockTree";
 import { dfsWithBinaryCheck } from "../shared";
 
 function App() {
-  const tree = useFileTreeStore((state) => state.tree);
-  const setTree = useFileTreeStore((state) => state.setTree);
-  const openTab = useFileTreeStore((state) => state.openTab);
-  const { openedTabs, updateFileContent } = useFileTreeStore();
+const {
+  tree,
+  setTree,
+  openTab,
+  openedTabs,
+  updateFileContent,
+} = useFileTreeStore();
   const activeTab = openedTabs.find((t) => t.isActive);
 
   const [imageSrc, setImageSrc] = useState<string | null>(null);
