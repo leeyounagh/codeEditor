@@ -38,7 +38,12 @@ type TreeNodeProps = {
 
 export const TreeNode = ({ node, depth = 0 }: TreeNodeProps) => {
   const [open, setOpen] = useState(false);
-  const { setSelectedNode, openTab, selectedNode } = useFileTreeStore();
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newName, setNewName] = useState(node.name);
+  const { setOpenedTabs, openedTabs } = useFileTreeStore();
+
+  const { setSelectedNode, openTab, selectedNode, setTree, tree } =
+    useFileTreeStore();
 
   const isSelected = selectedNode?.id === node.id;
 
@@ -48,6 +53,36 @@ export const TreeNode = ({ node, depth = 0 }: TreeNodeProps) => {
       setOpen((prev) => !prev);
     } else {
       openTab(node);
+    }
+  };
+
+  const handleRename = () => {
+    const renameInTree = (nodes: FileNode[]): FileNode[] =>
+      nodes.map((n) => {
+        if (n.id === node.id) {
+          return { ...n, name: newName };
+        } else if (n.children) {
+          return { ...n, children: renameInTree(n.children) };
+        }
+        return n;
+      });
+
+    const updatedTabs = openedTabs.map((tab) => {
+      if (tab.id === node.id) {
+        return { ...tab, name: newName };
+      }
+      return tab;
+    });
+
+    setTree(renameInTree(tree));
+    setOpenedTabs(updatedTabs);
+    setIsRenaming(false);
+  };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") handleRename();
+    if (e.key === "Escape") {
+      setIsRenaming(false);
+      setNewName(node.name);
     }
   };
 
@@ -68,9 +103,32 @@ export const TreeNode = ({ node, depth = 0 }: TreeNodeProps) => {
 
   return (
     <div>
-      <TreeItem  data-testid={`tab-${node.name}`} onClick={handleClick} indent={depth+1} isSelected={isSelected}>
+      <TreeItem
+        data-testid={`tab-${node.name}`}
+        onClick={handleClick}
+        indent={depth + 1}
+        isSelected={isSelected}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "F2") {
+            e.preventDefault();
+            setIsRenaming(true);
+          }
+        }}
+      >
         {renderIcon()}
-        <TreeText >{node.name}</TreeText>
+        {isRenaming ? (
+          <input
+            value={newName}
+            autoFocus
+            onChange={(e) => setNewName(e.target.value)}
+            onBlur={handleRename}
+            onKeyDown={handleKeyDown}
+            style={{ fontSize: "0.9rem", flex: 1 }}
+          />
+        ) : (
+          <TreeText>{node.name}</TreeText>
+        )}
       </TreeItem>
       {open &&
         node.children?.map((child) => (
