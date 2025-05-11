@@ -1,11 +1,19 @@
 {
-  "files": [],
-   "compilerOptions": {
+  "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react"
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "types": ["node", "playwright"],
+    "skipLibCheck": true,
+    "composite": true
   },
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "include": ["e2e", "src"],
+  // "references": [
+  //   { "path": "./tsconfig.app.json" },
+  //   { "path": "./tsconfig.node.json" }
+  // ]
 }

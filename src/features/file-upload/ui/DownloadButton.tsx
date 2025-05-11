@@ -137,7 +137,7 @@ export const DownloadButton = () => {
   };
 
   return (
-    <StyledButton onClick={handleDownload}>
+    <StyledButton data-testid="download-button" onClick={handleDownload}>
       <FaDownload color="lightgray" size={16} />
     </StyledButton>
   );

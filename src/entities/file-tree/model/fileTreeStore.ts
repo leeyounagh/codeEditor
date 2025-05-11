@@ -173,7 +173,7 @@ export const useFileTreeStore = create<FileTreeState>()(
     {
       name: "file-tree-store",
       storage, 
-      skipHydration: true, 
+      // skipHydration: true, 
     }
   )
 );

@@ -68,9 +68,9 @@ export const TreeNode = ({ node, depth = 0 }: TreeNodeProps) => {
 
   return (
     <div>
-      <TreeItem onClick={handleClick} indent={depth+1} isSelected={isSelected}>
+      <TreeItem  data-testid={`tab-${node.name}`} onClick={handleClick} indent={depth+1} isSelected={isSelected}>
         {renderIcon()}
-        <TreeText>{node.name}</TreeText>
+        <TreeText >{node.name}</TreeText>
       </TreeItem>
       {open &&
         node.children?.map((child) => (

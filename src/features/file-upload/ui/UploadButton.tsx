@@ -2,55 +2,49 @@ import { FaUpload } from "react-icons/fa";
 import { StyledButton } from "../../../shared/ui/Button";
 import { parseZipToFileTree } from "../../../shared";
 import { useFileTreeStore } from "../../../entities/file-tree/model/fileTreeStore";
+import { useRef } from "react";
 
 export const UploadButton = () => {
   const setTree = useFileTreeStore((state) => state.setTree);
   const tree = useFileTreeStore((state) => state.tree);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleUpload = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".zip";
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const parsedTree = await parseZipToFileTree(file);
+        const zipName = file.name.replace(/\.zip$/i, "");
 
-    input.onchange = async (e: Event) => {
-      const file = (e.target as HTMLInputElement)?.files?.[0];
-      if (file) {
+        const zipRoot = {
+          id: crypto.randomUUID(),
+          name: zipName,
+          path: zipName,
+          isDirectory: true,
+          children: parsedTree,
+        };
 
-        try {
-          const parsedTree = await parseZipToFileTree(file);
-          const zipName = file.name.replace(/\.zip$/i, "");
-
-          const zipRoot = {
-            id: crypto.randomUUID(),
-            name: zipName,
-            path: zipName,
-            isDirectory: true,
-            children: parsedTree,
-          };
-
-          try {
-            setTree([...tree, zipRoot]); 
-          } catch (err) {
-            console.error("저장 중 오류 발생:", err);
-            alert(
-              "파일을 저장하는 중 오류가 발생했습니다.\n파일 크기가 너무 클 수 있습니다."
-            );
-          }
-        } catch (error) {
-          console.error("zip 파싱 오류:", error);
-          alert(
-            "zip 파일을 파싱하는 중 오류가 발생했습니다.\n올바른 zip 파일인지 확인해주세요."
-          );
-        }
+        setTree([...tree, zipRoot]);
+      } catch (error) {
+        console.error("zip 파싱 오류:", error);
+        alert("올바른 zip 파일인지 확인해주세요.");
       }
-    };
-
-    input.click();
+    }
   };
 
   return (
-    <StyledButton onClick={handleUpload}>
-      <FaUpload color="lightgray" size={16} />
-    </StyledButton>
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".zip"
+        data-testid="file-input"
+        onChange={handleUpload}
+        style={{ display: "none" }}
+      />
+      <StyledButton onClick={() => inputRef.current?.click()}>
+        <FaUpload color="lightgray" size={16} />
+      </StyledButton>
+    </>
   );
 };
