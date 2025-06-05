@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
-import fs from 'fs';
 
 test('zip 업로드 → 수정 → 다운로드까지 작동해야 한다', async ({ page }) => {
   await page.goto('http://localhost:5173');
