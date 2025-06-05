@@ -18,7 +18,7 @@ import { findFirstFile } from "../shared";
 import { mockTree } from "../mock/mockTree";
 import { dfsWithBinaryCheck } from "../shared";
 
-function App() {
+export function App() {
 const {
   tree,
   setTree,
@@ -105,4 +105,4 @@ const {
   );
 }
 
-export default App;
+
