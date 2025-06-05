@@ -159,3 +159,4 @@ npm run test
 # 4. E2E 테스트 실행 (Playwright)
 npx playwright test
 
+
