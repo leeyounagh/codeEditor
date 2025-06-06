@@ -28,6 +28,7 @@ export const TabArea = styled.div`
   border-bottom: 1px solid #333;
   height: 64px;
   overflow-x: auto;
+  white-space:nowrap;
   
 `;
 

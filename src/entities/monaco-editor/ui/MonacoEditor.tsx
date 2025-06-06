@@ -4,10 +4,15 @@ import styled from "styled-components";
 import { extensionToLang } from "../model/extensionToLang";
 import type { FileNode } from "../../file-tree/model/types";
 
+// 반응형 대응을 위한 스타일 수정
 const MonacoWrapper = styled.div`
   width: 100%;
-  height: calc(100vh - 64px);
+  height: 100%;
   padding: 2rem 0;
+
+  @media (max-width: 768px) {
+    padding: 1rem 0;
+  }
 `;
 
 type Props = {
@@ -19,10 +24,9 @@ export const MonacoEditor = ({ file, onChange }: Props) => {
   const monacoRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [model, setModel] = useState<monaco.editor.ITextModel | null>(null);
-  const changeListenerRef = useRef<monaco.IDisposable | null>(null); //  변경 감지용
+  const changeListenerRef = useRef<monaco.IDisposable | null>(null);
 
-
-
+  // 파일 변경 시 model 갱신
   useEffect(() => {
     if (file) {
       const uri = monaco.Uri.parse(`file:///${file.path}`);
@@ -42,6 +46,7 @@ export const MonacoEditor = ({ file, onChange }: Props) => {
     }
   }, [file?.path]);
 
+  // editor 생성 및 model 설정
   useEffect(() => {
     if (monacoRef.current && model && !editorRef.current) {
       editorRef.current = monaco.editor.create(monacoRef.current, {
@@ -53,10 +58,10 @@ export const MonacoEditor = ({ file, onChange }: Props) => {
       editorRef.current.setModel(model);
     }
 
-    //  이전 리스너 제거
+    // 기존 변경 리스너 제거
     changeListenerRef.current?.dispose();
 
-    //  변경 감지 시 zustand 업데이트
+    // 새로운 변경 리스너 설정
     if (editorRef.current && file && model) {
       changeListenerRef.current = model.onDidChangeContent(() => {
         const updated = model.getValue();
@@ -68,6 +73,19 @@ export const MonacoEditor = ({ file, onChange }: Props) => {
       changeListenerRef.current?.dispose();
     };
   }, [model, file]);
+
+  // ResizeObserver로 반응형 대응
+  useEffect(() => {
+    if (!editorRef.current || !monacoRef.current) return;
+
+    const observer = new ResizeObserver(() => {
+      editorRef.current?.layout();
+    });
+
+    observer.observe(monacoRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   return <MonacoWrapper ref={monacoRef} />;
 };
