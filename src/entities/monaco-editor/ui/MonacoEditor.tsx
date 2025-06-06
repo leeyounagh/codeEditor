@@ -4,10 +4,10 @@ import styled from "styled-components";
 import { extensionToLang } from "../model/extensionToLang";
 import type { FileNode } from "../../file-tree/model/types";
 
-// 반응형 대응을 위한 스타일 수정
+
 const MonacoWrapper = styled.div`
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 64px);
   padding: 2rem 0;
 
   @media (max-width: 768px) {

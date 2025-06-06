@@ -11,23 +11,22 @@ import {
   Main,
   Sidebar,
   EditorArea,
-  PreviewImage
+  PreviewImage,
+  ToggleButton,
+  SidebarContent,
 } from "./styles/appLyaout";
 import { useFileTreeStore } from "../entities/file-tree/model/fileTreeStore";
 import { findFirstFile } from "../shared";
 import { mockTree } from "../mock/mockTree";
 import { dfsWithBinaryCheck } from "../shared";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 function App() {
-const {
-  tree,
-  setTree,
-  openTab,
-  openedTabs,
-  updateFileContent,
-} = useFileTreeStore();
+  const { tree, setTree, openTab, openedTabs, updateFileContent } =
+    useFileTreeStore();
   const activeTab = openedTabs.find((t) => t.isActive);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,17 +66,21 @@ const {
     }
   }, [activeTab]);
 
-
   return (
     <>
       <GlobalStyle />
       <AppContainer>
         <Main>
-          <Sidebar>
-            <Header>
-              <UploadHandler />
-            </Header>
-            <FileTree tree={tree} />
+          <Sidebar $open={isSidebarOpen}>
+            <ToggleButton onClick={toggleSidebar}>
+              {isSidebarOpen ? <FiChevronLeft /> : <FiChevronRight />}
+            </ToggleButton>
+            <SidebarContent $open={isSidebarOpen}>
+              <Header>
+                <UploadHandler />
+              </Header>
+              <FileTree tree={tree} />
+            </SidebarContent>
           </Sidebar>
           <EditorArea>
             <TabArea>
@@ -86,10 +89,7 @@ const {
 
             {activeTab?.isBinary ? (
               imageSrc ? (
-                <PreviewImage
-                  src={imageSrc}
-                  alt={activeTab.name}
-                />
+                <PreviewImage src={imageSrc} alt={activeTab.name} />
               ) : (
                 <p style={{ padding: "1rem", color: "white" }}>
                   이미지를 불러오는 중...

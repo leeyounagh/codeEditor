@@ -8,8 +8,13 @@ import styled from "styled-components";
 const UploadHandlerContainer = styled.div`
   display: flex;
   align-items: center;
-  // gap: 15px;
-  // padding: 0 20px ;
+
+  @media (max-width: 768px) {
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
 `;
 
 export const UploadHandler = () => {
@@ -19,7 +24,7 @@ export const UploadHandler = () => {
       <AddFileButton />
       <AddFolderButton />
       <DownloadButton />
-      <DeleteButton/>
+      <DeleteButton />
     </UploadHandlerContainer>
   );
 };
